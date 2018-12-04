@@ -1,4 +1,4 @@
-package logic2
+package logic3
 
 import (
 	"fmt"
@@ -7,28 +7,31 @@ import (
 )
 
 const (
-	logicNm string = "logic2"
+	logicNm string = "logic3"
 )
 
 func init() {
-	job.RegisterLogic(logicNm, &logic2St{})
+	job.RegisterLogic(logicNm, &logic3St{})
 }
 
-type logic2St struct{}
+type logic3St struct{}
 
-func (l logic2St) Run(receiverArg job.ChanInputData) {
+func (l logic3St) Run(receiverArg job.ChanInputData) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
 
-	if receiverArg.Data.(int) == 3 {
+	if receiverArg.Data.(int) == 505374 {
 		job.Action.Pause(receiverArg.State)
-		time.Sleep(5 * time.Second)
+		time.Sleep(10 * time.Second)
 		job.Action.Start(receiverArg.State)
 	}
 
 }
 
 func RunScheduler() {
-	var tasks = []int{1, 2, 3, 4, 5, 6}
+	var tasks []int
+	for i := 0; i <= 1000000; i++ {
+		tasks = append(tasks, i)
+	}
 
 	var capsulateTasks []interface{}
 	var t interface{}
@@ -38,6 +41,6 @@ func RunScheduler() {
 	}
 
 	c := make(chan int)
-	job.RunScheduler(c, 1, logicNm, capsulateTasks)
+	job.RunScheduler(c, 10, logicNm, capsulateTasks)
 	job.Action.Start(c)
 }
