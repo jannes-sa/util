@@ -7,19 +7,11 @@ var (
 // RunScheduler - Running Scheduler
 func RunScheduler(
 	state chan int,
-	routine int,
-	nmRoutine string,
+	worker int,
+	nmWorker string,
 	tasks []interface{},
 ) {
-	var (
-		sch scheduler
-	)
+	var sch scheduler
 
-	sch.run(
-		state,
-		routine,
-		nmRoutine,
-		tasks,
-	)
-
+	go sch.run(state, worker, nmWorker, tasks)
 }

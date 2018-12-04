@@ -1,17 +1,12 @@
 package job
 
-import (
-	"fmt"
-)
+import "fmt"
 
-// import "fmt"
-
-type correlatedInputOutput struct {
-	key  int
-	data interface{}
-}
-
-func sendInput(tasks map[int]interface{}, input chan interface{}) {
+func sendinput(
+	nmRoutine string,
+	input chan interface{},
+	tasks map[string]map[int]interface{},
+) {
 	defer func() {
 		// recover from panic caused by writing to a closed channel
 		if r := recover(); r != nil {
@@ -21,20 +16,18 @@ func sendInput(tasks map[int]interface{}, input chan interface{}) {
 		}
 	}()
 
-	for k, v := range tasks {
-		in := correlatedInputOutput{
-			key:  k,
-			data: v,
-		}
-		input <- in
+	for k, v := range tasks[nmRoutine] {
+		input <- v
+		delete(tasks[nmRoutine], k)
 	}
+
 }
 
-func getOutput(tasks map[int]interface{}, output chan int) {
-	for i := 0; i < len(tasks); i++ {
-		<-output
-	}
-}
+// func getoutput(output chan int) {
+// 	for {
+// 		fmt.Println(<-output)
+// 	}
+// }
 
 // ChanInputData - Channel Receiver Data
 type ChanInputData struct {
@@ -43,18 +36,17 @@ type ChanInputData struct {
 }
 
 func worker(
+	state chan int,
 	input chan interface{},
 	output chan int,
-	state chan int,
 	nmRoutine string,
 ) {
-	for d := range input {
-		data := d.(correlatedInputOutput)
+	for data := range input {
+
 		logicRun[nmRoutine].Run(ChanInputData{
 			State: state,
-			Data:  data.data,
+			Data:  data,
 		})
-
-		output <- 1
+		// output <- data
 	}
 }

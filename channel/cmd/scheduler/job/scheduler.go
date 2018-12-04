@@ -1,11 +1,12 @@
 package job
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	stopped = iota
 	running
-	done
 )
 
 var Action interface {
@@ -41,27 +42,11 @@ func (s scheduler) run(
 	}
 	mappingTasks[nmRoutine] = mapTask
 
-	input, output := make(chan interface{}), make(chan int)
-	for i := 0; i < routine; i++ {
-		go worker(input, output, state, nmRoutine)
-	}
+	var (
+		input  chan interface{}
+		output chan int
+	)
 
-	go sendInput(mappingTasks[nmRoutine], input)
-	go s.monitoring(state, routine, nmRoutine, mappingTasks, input, output)
-	getOutput(mappingTasks[nmRoutine], output)
-
-	close(input)
-	close(output)
-}
-
-func (s scheduler) monitoring(
-	state chan int,
-	routine int,
-	nmRoutine string,
-	tasks map[string]map[int]interface{},
-	input chan interface{},
-	output chan int,
-) {
 	for {
 		select {
 		case i := <-state:
@@ -69,12 +54,16 @@ func (s scheduler) monitoring(
 			case running:
 				fmt.Println("RUNNING ", nmRoutine, "TOTAL WORKER ", routine)
 
+				input, output = make(chan interface{}), make(chan int)
+
+				for i := 0; i < routine; i++ {
+					go worker(state, input, output, nmRoutine)
+				}
+
+				go sendinput(nmRoutine, input, mappingTasks)
+				// go getoutput(output)
 			case stopped:
 				fmt.Println("STOPPED ", nmRoutine, "TOTAL WORKER ", routine)
-				close(input)
-
-			case done:
-				fmt.Println("DONE ", nmRoutine, "TOTAL WORKER ", routine)
 				close(input)
 			}
 		}
