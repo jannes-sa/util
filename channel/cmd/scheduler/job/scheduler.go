@@ -31,7 +31,6 @@ type scheduler struct {
 // Start - Start Scheduler
 func (s *scheduler) Start() {
 	(*s).state <- running
-	(*s).run()
 }
 
 // Pause - Pause Scheduler
@@ -54,19 +53,13 @@ func (s *scheduler) run() {
 		mappingTasks[nmRoutine] = mapTask
 	}
 
-	// input, output := make(chan interface{}), make(chan int)
-	output := make(chan int)
 	input = make(chan interface{})
 
 	for i := 0; i < routine; i++ {
-		go worker(input, output, state, nmRoutine)
+		go worker(input, state, nmRoutine)
 	}
 
-	sendInput(mappingTasks[nmRoutine], input)
-	getOutput(mappingTasks[nmRoutine], nmRoutine, output)
-
-	close(input)
-	close(output)
+	go sendInput(mappingTasks[nmRoutine], input)
 }
 
 func monitoring(
@@ -75,20 +68,20 @@ func monitoring(
 	nmRoutine string,
 	input chan interface{},
 ) {
-	go func() {
-		for {
-			select {
-			case i := <-state:
-				switch i {
-				case running:
-					fmt.Println("RUNNING ", nmRoutine, "TOTAL WORKER ", routine)
 
-				case stopped:
-					fmt.Println("STOPPED ", nmRoutine, "TOTAL WORKER ", routine)
-					close(input)
-				}
+	for {
+		select {
+		case i := <-state:
+			switch i {
+			case running:
+				fmt.Println("RUNNING ", nmRoutine, "TOTAL WORKER ", routine)
+
+			case stopped:
+				fmt.Println("STOPPED ", nmRoutine, "TOTAL WORKER ", routine)
+				close(input)
+				return
 			}
 		}
+	}
 
-	}()
 }

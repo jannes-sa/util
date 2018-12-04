@@ -22,9 +22,9 @@ func (l logic4St) Run(receiverArg job.ChanInputData) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
 	ck = append(ck, 1)
 	if receiverArg.Data.(int) == 5 {
-		job.Action.Pause()
-		time.Sleep(10 * time.Second)
-		job.Action.Start()
+		// job.Action.Pause()
+		// time.Sleep(10 * time.Second)
+		// job.Action.Start()
 	}
 
 }

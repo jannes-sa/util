@@ -7,7 +7,7 @@ func RunScheduler(
 	nmWorker string,
 	tasks []interface{},
 ) {
-	var input chan interface{}
+	input := make(chan interface{})
 
 	sch := scheduler{
 		state:     state,
@@ -17,7 +17,6 @@ func RunScheduler(
 		input:     input,
 	}
 
-	monitoring(state, worker, nmWorker, input)
-	sch.Start()
+	sch.run()
 
 }
