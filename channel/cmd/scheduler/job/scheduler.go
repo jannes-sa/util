@@ -35,20 +35,19 @@ func (s scheduler) run(
 	nmRoutine string,
 	tasks []interface{},
 ) {
-
-	input, output := make(chan interface{}), make(chan int)
-
-	for i := 0; i < routine; i++ {
-		go worker(input, output, state, nmRoutine)
-	}
-
 	mapTask := make(map[int]interface{})
 	for k, v := range tasks {
 		mapTask[k] = v
 	}
 	mappingTasks[nmRoutine] = mapTask
 
+	input, output := make(chan interface{}), make(chan int)
+	for i := 0; i < routine; i++ {
+		go worker(input, output, state, nmRoutine)
+	}
+
 	go sendInput(mappingTasks[nmRoutine], input)
+	go s.monitoring(state, routine, nmRoutine, mappingTasks, input, output)
 	getOutput(mappingTasks[nmRoutine], output)
 
 	close(input)
@@ -63,7 +62,6 @@ func (s scheduler) monitoring(
 	input chan interface{},
 	output chan int,
 ) {
-
 	for {
 		select {
 		case i := <-state:
@@ -71,9 +69,6 @@ func (s scheduler) monitoring(
 			case running:
 				fmt.Println("RUNNING ", nmRoutine, "TOTAL WORKER ", routine)
 
-				input = make(chan interface{})
-
-				go sendInput(mappingTasks[nmRoutine], input)
 			case stopped:
 				fmt.Println("STOPPED ", nmRoutine, "TOTAL WORKER ", routine)
 				close(input)

@@ -12,6 +12,15 @@ type correlatedInputOutput struct {
 }
 
 func sendInput(tasks map[int]interface{}, input chan interface{}) {
+	defer func() {
+		// recover from panic caused by writing to a closed channel
+		if r := recover(); r != nil {
+			err := fmt.Errorf("%v", r)
+			fmt.Printf("write: error writing %d on channel: %v\n", input, err)
+			return
+		}
+	}()
+
 	for k, v := range tasks {
 		in := correlatedInputOutput{
 			key:  k,
@@ -23,7 +32,7 @@ func sendInput(tasks map[int]interface{}, input chan interface{}) {
 
 func getOutput(tasks map[int]interface{}, output chan int) {
 	for i := 0; i < len(tasks); i++ {
-		fmt.Println(<-output)
+		<-output
 	}
 }
 

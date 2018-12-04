@@ -19,17 +19,17 @@ type logic3St struct{}
 func (l logic3St) Run(receiverArg job.ChanInputData) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
 
-	// if receiverArg.Data.(int) == 100 {
-	// 	job.Action.Pause(receiverArg.State)
-	// 	time.Sleep(10 * time.Second)
-	// 	job.Action.Start(receiverArg.State)
-	// }
+	if receiverArg.Data.(int) == 6 {
+		job.Action.Pause(receiverArg.State)
+		time.Sleep(10 * time.Second)
+		job.Action.Start(receiverArg.State)
+	}
 
 }
 
 func RunScheduler() {
 	var tasks []int
-	for i := 0; i <= 1000000; i++ {
+	for i := 0; i <= 10; i++ {
 		tasks = append(tasks, i)
 	}
 
@@ -42,5 +42,5 @@ func RunScheduler() {
 
 	c := make(chan int)
 	job.RunScheduler(c, 2, logicNm, capsulateTasks)
-	// job.Action.Start(c)
+	job.Action.Start(c)
 }

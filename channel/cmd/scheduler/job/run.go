@@ -12,8 +12,6 @@ func RunScheduler(
 	tasks []interface{},
 ) {
 	var (
-		// 	input  chan interface{}
-		// 	output chan int
 		sch scheduler
 	)
 
@@ -25,9 +23,3 @@ func RunScheduler(
 	)
 
 }
-
-// func sendInput(tasks map[int]interface{}, input chan interface{}) {
-// 	for _, v := range tasks {
-// 		input <- v.(int)
-// 	}
-// }
