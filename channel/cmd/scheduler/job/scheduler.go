@@ -28,7 +28,7 @@ func (s *scheduler) Pause(state chan int) {
 	state <- stopped
 }
 
-func (s scheduler) run(
+func (s *scheduler) run(
 	state chan int,
 	routine int,
 	nmRoutine string,

@@ -1,55 +1,18 @@
 package job
 
-import (
-	"fmt"
-	"time"
-)
-
-// func sendinput(
-// 	nmRoutine string,
-// 	input chan interface{},
-// 	tasks map[string]map[int]interface{},
-// ) {
-// 	// defer func() {
-// 	// 	// recover from panic caused by writing to a closed channel
-// 	// 	if r := recover(); r != nil {
-// 	// 		err := fmt.Errorf("%v", r)
-// 	// 		fmt.Printf("write: error writing %d on channel: %v\n", input, err)
-// 	// 		return
-// 	// 	}
-// 	// }()
-
-// 	for k, v := range tasks[nmRoutine] {
-// 		input <- v
-// 		delete(tasks[nmRoutine], k)
-// 	}
-// }
-
-// func getOutput(count int, output chan int) {
-// 	for i := 0; count < 0; i++ {
-// 		<-output
-// 	}
-// }
-
-// func worker(
-// 	input chan interface{},
-// 	output chan int,
-// 	state chan int,
-// 	nmRoutine string,
-// ) {
-// 	for data := range input {
-// 		logicRun[nmRoutine].Run(ChanInputData{
-// 			State: state,
-// 			Data:  data,
-// 		})
-// 		output <- 1
-// 	}
-// }
+type correlatedInput struct {
+	key int
+	val interface{}
+}
 
 func sendInput(tasks map[int]interface{}, input chan interface{}) {
 	go func() {
-		for _, v := range tasks {
-			input <- v
+		for k, v := range tasks {
+			in := correlatedInput{
+				key: k,
+				val: v,
+			}
+			input <- in
 		}
 	}()
 }
@@ -67,8 +30,12 @@ func worker(
 	nmRoutine string,
 ) {
 	for data := range input {
-		fmt.Println(data, time.Now())
+		d := data.(correlatedInput)
+		logicRun[nmRoutine].Run(ChanInputData{
+			State: state,
+			Data:  d.val,
+		})
 
-		output <- data.(int)
+		output <- d.key
 	}
 }
