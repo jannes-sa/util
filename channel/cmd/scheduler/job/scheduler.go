@@ -1,73 +1,51 @@
 package job
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	stopped = iota
 	running
 )
 
-var (
-	mappingTasks = make(map[string]map[int]interface{})
-)
-
 var Action interface {
-	Start()
-	Pause()
+	Start(chan int)
+	Pause(chan int)
 }
 
 func init() {
 	Action = &scheduler{}
 }
 
-type scheduler struct {
-	state     chan int
-	routine   int
-	nmRoutine string
-	tasks     []interface{}
-	input     chan interface{}
-}
+type scheduler struct{}
 
 // Start - Start Scheduler
-func (s *scheduler) Start() {
-	(*s).state <- running
+func (s scheduler) Start(state chan int) {
+	state <- running
 }
 
 // Pause - Pause Scheduler
-func (s *scheduler) Pause() {
-	(*s).state <- stopped
+func (s scheduler) Pause(state chan int) {
+	state <- stopped
 }
 
-func (s *scheduler) run() {
-	state := (*s).state
-	routine := (*s).routine
-	nmRoutine := (*s).nmRoutine
-	tasks := (*s).tasks
-	input := (*s).input
-
-	if len(mappingTasks[nmRoutine]) == 0 {
-		mapTask := make(map[int]interface{})
-		for k, v := range tasks {
-			mapTask[k] = v
-		}
-		mappingTasks[nmRoutine] = mapTask
-	}
-
-	input = make(chan interface{})
-
-	for i := 0; i < routine; i++ {
-		go worker(input, state, nmRoutine)
-	}
-
-	go sendInput(mappingTasks[nmRoutine], input)
-}
-
-func monitoring(
+func (s scheduler) run(
 	state chan int,
 	routine int,
 	nmRoutine string,
-	input chan interface{},
+	tasks []interface{},
 ) {
+	mapTask := make(map[int]interface{})
+	for k, v := range tasks {
+		mapTask[k] = v
+	}
+	mappingTasks[nmRoutine] = mapTask
+
+	var (
+		input  chan interface{}
+		output chan int
+	)
 
 	for {
 		select {
@@ -76,12 +54,18 @@ func monitoring(
 			case running:
 				fmt.Println("RUNNING ", nmRoutine, "TOTAL WORKER ", routine)
 
+				input, output = make(chan interface{}), make(chan int)
+
+				for i := 0; i < routine; i++ {
+					go worker(state, input, output, nmRoutine)
+				}
+
+				go sendinput(nmRoutine, input, mappingTasks)
+				// go getoutput(output)
 			case stopped:
 				fmt.Println("STOPPED ", nmRoutine, "TOTAL WORKER ", routine)
 				close(input)
-				return
 			}
 		}
 	}
-
 }

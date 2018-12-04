@@ -4,11 +4,6 @@ var (
 	logicRun = make(map[string]logiclayer)
 )
 
-// ChanInputData - Channel Receiver Data
-type ChanInputData struct {
-	State chan int
-	Data  interface{}
-}
 type logiclayer interface {
 	Run(ChanInputData)
 }

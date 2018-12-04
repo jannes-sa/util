@@ -1,5 +1,9 @@
 package job
 
+var (
+	mappingTasks = make(map[string]map[int]interface{})
+)
+
 // RunScheduler - Running Scheduler
 func RunScheduler(
 	state chan int,
@@ -7,16 +11,7 @@ func RunScheduler(
 	nmWorker string,
 	tasks []interface{},
 ) {
-	input := make(chan interface{})
+	var sch scheduler
 
-	sch := scheduler{
-		state:     state,
-		routine:   worker,
-		nmRoutine: nmWorker,
-		tasks:     tasks,
-		input:     input,
-	}
-
-	sch.run()
-
+	go sch.run(state, worker, nmWorker, tasks)
 }
