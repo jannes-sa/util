@@ -7,11 +7,27 @@ var (
 // RunScheduler - Running Scheduler
 func RunScheduler(
 	state chan int,
-	worker int,
-	nmWorker string,
+	routine int,
+	nmRoutine string,
 	tasks []interface{},
 ) {
-	var sch scheduler
+	var (
+		// 	input  chan interface{}
+		// 	output chan int
+		sch scheduler
+	)
 
-	go sch.run(state, worker, nmWorker, tasks)
+	sch.run(
+		state,
+		routine,
+		nmRoutine,
+		tasks,
+	)
+
 }
+
+// func sendInput(tasks map[int]interface{}, input chan interface{}) {
+// 	for _, v := range tasks {
+// 		input <- v.(int)
+// 	}
+// }

@@ -40,6 +40,6 @@ func RunScheduler() {
 	}
 
 	c := make(chan int)
-	job.RunScheduler(c, 1, logicNm, capsulateTasks)
+	job.RunScheduler(c, 5, logicNm, capsulateTasks)
 	job.Action.Start(c)
 }
