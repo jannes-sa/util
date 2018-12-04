@@ -9,15 +9,14 @@ package scheduler
 
 import (
 	"time"
-	"util/channel/cmd/scheduler/logic1"
-	"util/channel/cmd/scheduler/logic2"
-	"util/channel/cmd/scheduler/logic3"
+	"util/channel/cmd/scheduler/logic4"
 )
 
 func scheduler() {
-	logic1.RunScheduler()
-	logic2.RunScheduler()
-	logic3.RunScheduler()
+	// logic1.RunScheduler()
+	// logic2.RunScheduler()
+	// logic3.RunScheduler()
+	logic4.RunScheduler()
 
 	time.Sleep(10 * time.Minute)
 }

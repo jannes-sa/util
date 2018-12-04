@@ -12,6 +12,6 @@ func RunScheduler(
 	tasks []interface{},
 ) {
 	var sch scheduler
+	sch.run(state, worker, nmWorker, tasks)
 
-	go sch.run(state, worker, nmWorker, tasks)
 }
