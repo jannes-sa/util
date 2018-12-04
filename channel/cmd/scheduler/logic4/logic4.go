@@ -1,8 +1,6 @@
 package logic4
 
 import (
-	"fmt"
-	"time"
 	"util/channel/cmd/scheduler/job"
 )
 
@@ -16,23 +14,15 @@ func init() {
 
 type logic4St struct{}
 
-var ck []int
-
 func (l logic4St) Run(receiverArg job.ChanInputData) {
-	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
-	ck = append(ck, 1)
-	if receiverArg.Data.(int) == 5 {
-		// job.Action.Pause()
-		// time.Sleep(10 * time.Second)
-		// job.Action.Start()
-	}
+	// fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
 
 }
 
 func RunScheduler() {
 
 	var tasks []int
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1000000; i++ {
 		tasks = append(tasks, i)
 	}
 
@@ -43,8 +33,5 @@ func RunScheduler() {
 		capsulateTasks = append(capsulateTasks, t)
 	}
 
-	c := make(chan int)
-	job.RunScheduler(c, 1, logicNm, capsulateTasks)
-
-	fmt.Println("DONE TOTAL", len(ck))
+	job.RunScheduler(100, logicNm, capsulateTasks)
 }
