@@ -1,9 +1,5 @@
 package job
 
-var (
-	mappingTasks = make(map[string]map[int]interface{})
-)
-
 // RunScheduler - Running Scheduler
 func RunScheduler(
 	state chan int,

@@ -16,24 +16,23 @@ func init() {
 
 type logic4St struct{}
 
-var ckMap []int
+var ck []int
 
 func (l logic4St) Run(receiverArg job.ChanInputData) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
-	ckMap = append(ckMap, 1)
-
-	// if receiverArg.Data.(int) == 5 {
-	// 	job.Action.Pause(receiverArg.State)
-	// 	time.Sleep(10 * time.Second)
-	// 	job.Action.Start(receiverArg.State)
-	// }
+	ck = append(ck, 1)
+	if receiverArg.Data.(int) == 5 {
+		job.Action.Pause()
+		time.Sleep(10 * time.Second)
+		job.Action.Start()
+	}
 
 }
 
 func RunScheduler() {
 
 	var tasks []int
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 10; i++ {
 		tasks = append(tasks, i)
 	}
 
@@ -47,5 +46,5 @@ func RunScheduler() {
 	c := make(chan int)
 	job.RunScheduler(c, 1, logicNm, capsulateTasks)
 
-	fmt.Println("DONE TOTAL", len(ckMap))
+	fmt.Println("DONE TOTAL", len(ck))
 }

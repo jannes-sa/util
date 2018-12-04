@@ -17,9 +17,11 @@ func sendInput(tasks map[int]interface{}, input chan interface{}) {
 	}()
 }
 
-func getOutput(tasks map[int]interface{}, output chan int) {
+func getOutput(tasks map[int]interface{}, nmRoutine string, output chan int) {
+
 	for i := 0; i < len(tasks); i++ {
-		<-output
+		o := <-output
+		delete(mappingTasks[nmRoutine], o)
 	}
 }
 

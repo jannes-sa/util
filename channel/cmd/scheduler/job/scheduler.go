@@ -7,6 +7,10 @@ const (
 	running
 )
 
+var (
+	mappingTasks = make(map[string]map[int]interface{})
+)
+
 var Action interface {
 	Start()
 	Pause()
@@ -42,11 +46,13 @@ func (s *scheduler) run() {
 	tasks := (*s).tasks
 	input := (*s).input
 
-	mapTask := make(map[int]interface{})
-	for k, v := range tasks {
-		mapTask[k] = v
+	if len(mappingTasks[nmRoutine]) == 0 {
+		mapTask := make(map[int]interface{})
+		for k, v := range tasks {
+			mapTask[k] = v
+		}
+		mappingTasks[nmRoutine] = mapTask
 	}
-	mappingTasks[nmRoutine] = mapTask
 
 	// input, output := make(chan interface{}), make(chan int)
 	output := make(chan int)
@@ -57,7 +63,7 @@ func (s *scheduler) run() {
 	}
 
 	sendInput(mappingTasks[nmRoutine], input)
-	getOutput(mappingTasks[nmRoutine], output)
+	getOutput(mappingTasks[nmRoutine], nmRoutine, output)
 
 	close(input)
 	close(output)
