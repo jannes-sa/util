@@ -8,32 +8,39 @@ const (
 )
 
 var Action interface {
-	Start(chan int)
-	Pause(chan int)
+	Start()
+	Pause()
 }
 
 func init() {
 	Action = &scheduler{}
 }
 
-type scheduler struct{}
+type scheduler struct {
+	state     chan int
+	routine   int
+	nmRoutine string
+	tasks     []interface{}
+	input     chan interface{}
+}
 
 // Start - Start Scheduler
-func (s *scheduler) Start(state chan int) {
-	state <- running
+func (s *scheduler) Start() {
+	(*s).state <- running
+	(*s).run()
 }
 
 // Pause - Pause Scheduler
-func (s *scheduler) Pause(state chan int) {
-	state <- stopped
+func (s *scheduler) Pause() {
+	(*s).state <- stopped
 }
 
-func (s *scheduler) run(
-	state chan int,
-	routine int,
-	nmRoutine string,
-	tasks []interface{},
-) {
+func (s *scheduler) run() {
+	state := (*s).state
+	routine := (*s).routine
+	nmRoutine := (*s).nmRoutine
+	tasks := (*s).tasks
+	input := (*s).input
 
 	mapTask := make(map[int]interface{})
 	for k, v := range tasks {
@@ -41,7 +48,9 @@ func (s *scheduler) run(
 	}
 	mappingTasks[nmRoutine] = mapTask
 
-	input, output := make(chan interface{}), make(chan int)
+	// input, output := make(chan interface{}), make(chan int)
+	output := make(chan int)
+	input = make(chan interface{})
 
 	for i := 0; i < routine; i++ {
 		go worker(input, output, state, nmRoutine)
@@ -54,33 +63,26 @@ func (s *scheduler) run(
 	close(output)
 }
 
-func (s *scheduler) monitoring(
+func monitoring(
 	state chan int,
 	routine int,
 	nmRoutine string,
-	tasks []interface{},
+	input chan interface{},
 ) {
-	mapTask := make(map[int]interface{})
-	for k, v := range tasks {
-		mapTask[k] = v
-	}
-	mappingTasks[nmRoutine] = mapTask
+	go func() {
+		for {
+			select {
+			case i := <-state:
+				switch i {
+				case running:
+					fmt.Println("RUNNING ", nmRoutine, "TOTAL WORKER ", routine)
 
-	var (
-		input chan interface{}
-	)
-
-	for {
-		select {
-		case i := <-state:
-			switch i {
-			case running:
-				fmt.Println("RUNNING ", nmRoutine, "TOTAL WORKER ", routine)
-
-			case stopped:
-				fmt.Println("STOPPED ", nmRoutine, "TOTAL WORKER ", routine)
-				close(input)
+				case stopped:
+					fmt.Println("STOPPED ", nmRoutine, "TOTAL WORKER ", routine)
+					close(input)
+				}
 			}
 		}
-	}
+
+	}()
 }

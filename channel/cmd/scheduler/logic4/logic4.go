@@ -16,8 +16,11 @@ func init() {
 
 type logic4St struct{}
 
+var ckMap []int
+
 func (l logic4St) Run(receiverArg job.ChanInputData) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
+	ckMap = append(ckMap, 1)
 
 	// if receiverArg.Data.(int) == 5 {
 	// 	job.Action.Pause(receiverArg.State)
@@ -28,21 +31,9 @@ func (l logic4St) Run(receiverArg job.ChanInputData) {
 }
 
 func RunScheduler() {
-	// f, err := os.Create("./dat2")
-	// defer f.Close()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// w := bufio.NewWriter(f)
-	// n4, err := w.WriteString("buffered\n")
-	// fmt.Printf("1\n", n4)
-	// n5, err := w.WriteString("buffered\n")
-	// fmt.Printf("2\n", n5)
-	// w.Flush()
 
 	var tasks []int
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 10000; i++ {
 		tasks = append(tasks, i)
 	}
 
@@ -55,7 +46,6 @@ func RunScheduler() {
 
 	c := make(chan int)
 	job.RunScheduler(c, 1, logicNm, capsulateTasks)
-	// job.Action.Start(c)
 
-	fmt.Println("XXX")
+	fmt.Println("DONE TOTAL", len(ckMap))
 }

@@ -11,7 +11,17 @@ func RunScheduler(
 	nmWorker string,
 	tasks []interface{},
 ) {
-	var sch scheduler
-	sch.run(state, worker, nmWorker, tasks)
+	var input chan interface{}
+
+	sch := scheduler{
+		state:     state,
+		routine:   worker,
+		nmRoutine: nmWorker,
+		tasks:     tasks,
+		input:     input,
+	}
+
+	monitoring(state, worker, nmWorker, input)
+	sch.Start()
 
 }
