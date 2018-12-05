@@ -1,11 +1,5 @@
 package job
 
-const (
-	stopped = iota
-	running
-	done
-)
-
 type scheduler struct{}
 
 func (s scheduler) run(
@@ -26,7 +20,7 @@ func (s scheduler) run(
 	}
 
 	go sendinput(mappingTasks, nmRoutine, input)
-	getOutput(len(mappingTasks[nmRoutine]), output)
+	getOutput(len(mappingTasks[nmRoutine]), nmRoutine, output)
 
 	close(input)
 	close(output)

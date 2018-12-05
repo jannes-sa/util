@@ -31,13 +31,13 @@ func sendinput(
 	}
 }
 
-func getOutput(countTasks int, output chan int) {
+func getOutput(countTasks int, nmRoutine string, output chan int) {
 	var workDone []int
 	for i := 0; i < countTasks; i++ {
 		o := <-output
 		workDone = append(workDone, o)
 	}
-	println("workDone", len(workDone))
+	println(nmRoutine, "JOB DONE FROM ", countTasks, " = ", len(workDone))
 }
 
 // ChanInputData - Channel Receiver Data

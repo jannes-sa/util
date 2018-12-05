@@ -1,6 +1,8 @@
 package logic4
 
 import (
+	"fmt"
+	"time"
 	"util/channel/cmd/scheduler/job"
 )
 
@@ -15,8 +17,7 @@ func init() {
 type logic4St struct{}
 
 func (l logic4St) Run(receiverArg job.ChanInputData) {
-	// fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
-
+	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
 }
 
 func RunScheduler() {

@@ -18,15 +18,6 @@ type logic1St struct{}
 
 func (l logic1St) Run(receiverArg job.ChanInputData) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
-
-	if receiverArg.Data.(int) == 3 {
-		// Pause job //
-		job.Action.Pause(receiverArg.State)
-		time.Sleep(5 * time.Second)
-		// Continue job after 5 second Pause //
-		job.Action.Start(receiverArg.State)
-	}
-
 }
 
 func RunScheduler() {
@@ -39,7 +30,5 @@ func RunScheduler() {
 		capsulateTasks = append(capsulateTasks, t)
 	}
 
-	c := make(chan int)
-	job.RunScheduler(c, 1, logicNm, capsulateTasks)
-	job.Action.Start(c)
+	job.RunScheduler(1, logicNm, capsulateTasks)
 }
