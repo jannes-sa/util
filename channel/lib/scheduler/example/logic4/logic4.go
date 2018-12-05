@@ -14,14 +14,24 @@ const (
 
 type logic4St struct {
 	checkValidate int
+	tasks         []Tasks
 }
 
-func (l logic4St) Validate() (state bool) {
-	fmt.Println("validate", l)
+func (l logic4St) Validate() (bufferingTasks map[int]interface{}, state bool) {
+	state = false
+
 	if l.checkValidate == 2 {
-		return true
+		state = true
+
+		bufferingTasks = make(map[int]interface{})
+		for k, v := range l.tasks {
+			bufferingTasks[k] = v
+		}
+
+		return
 	}
-	return false
+
+	return
 }
 
 func (l logic4St) Run(receiverArg job.ChanInputData) (
@@ -81,15 +91,11 @@ func RunScheduler() {
 		tasks = append(tasks, Tasks{task: i, taskString: "XXXXX"})
 	}
 
-	capsulateTasks := make(map[int]interface{})
-	for k, v := range tasks {
-		capsulateTasks[k] = v
-	}
-
 	var l logic4St
 	l.checkValidate = 2
+	l.tasks = tasks
 
-	err := job.RunScheduler(100, logicNm, capsulateTasks, &l)
+	err := job.RunScheduler(100, logicNm, &l)
 	if err != nil {
 		fmt.Println(err)
 	}

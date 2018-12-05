@@ -7,7 +7,7 @@ var (
 )
 
 type logiclayer interface {
-	Validate() bool
+	Validate() (tasks map[int]interface{}, state bool)
 	Run(ChanInputData) (interface{}, error)
 	Done(*OutputData) bool
 }

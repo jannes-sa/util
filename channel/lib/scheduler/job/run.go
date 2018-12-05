@@ -3,6 +3,7 @@ package job
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -40,7 +41,6 @@ func (s status) String() string {
 func RunScheduler(
 	worker int,
 	nmWorker string,
-	tasks map[int]interface{},
 	logic logiclayer,
 ) (err error) {
 	err = registerLogic(nmWorker, logic)
@@ -49,7 +49,7 @@ func RunScheduler(
 	}
 
 	mappingStatusTasks[nmWorker] = preparing
-	err = prepareRun(worker, nmWorker, tasks)
+	err = prepareRun(worker, nmWorker)
 	if err != nil {
 		return
 	}
@@ -60,7 +60,7 @@ func RunScheduler(
 			mapWorker = len(mappingTasks[nmWorker])
 			print(t, nmWorker, "TOTAL TASKS LEFT", mapWorker, "STATUS", status.String(mappingStatusTasks[nmWorker]))
 			if mappingStatusTasks[nmWorker] == restart {
-				err = prepareRun(worker, nmWorker, tasks)
+				err = prepareRun(worker, nmWorker)
 				if err != nil {
 					return
 				}
@@ -74,14 +74,23 @@ func RunScheduler(
 func prepareRun(
 	worker int,
 	nmWorker string,
-	tasks map[int]interface{},
 ) (err error) {
-	var sch scheduler
-	if !logicRun[nmWorker].Validate() {
-		println("VALIDATE JOB", nmWorker, "FALSE")
-		err = errors.New("VALIDATE JOB" + nmWorker + "FALSE")
+	var msg string
+	tasks, state := logicRun[nmWorker].Validate()
+	if !state {
+		msg = "VALIDATE JOB" + nmWorker + "FALSE"
+		println(msg)
+		err = errors.New(msg)
 		return
 	}
+
+	if len(tasks) == 0 {
+		msg = "VALIDATE JOB" + nmWorker + "TASKS" + strconv.Itoa(len(tasks))
+		println(msg)
+		err = errors.New(msg)
+	}
+
+	var sch scheduler
 	sch.run(worker, nmWorker, tasks)
 	return
 }
