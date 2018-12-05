@@ -9,7 +9,7 @@ import (
 var (
 	mappingTasks       = make(map[string]map[int]interface{})
 	mappingStatusTasks = make(map[string]status)
-	debug              = false
+	debug              = true
 )
 
 type status uint8
@@ -41,7 +41,10 @@ func RunScheduler(
 	worker int,
 	nmWorker string,
 	tasks []interface{},
+	logic logiclayer,
 ) (err error) {
+	registerLogic(nmWorker, logic)
+
 	mappingStatusTasks[nmWorker] = preparing
 	err = prepareRun(worker, nmWorker, tasks)
 	if err != nil {

@@ -11,7 +11,7 @@ type logiclayer interface {
 }
 
 // RegisterLogic - Register Logic Inside Scheduler
-func RegisterLogic(nmLogic string, logic logiclayer) {
+func registerLogic(nmLogic string, logic logiclayer) {
 	if _, ok := logicRun[nmLogic]; ok {
 		msg := "failed Registered Logic " + nmLogic + "Already Registered"
 		panic(msg)

@@ -12,14 +12,16 @@ const (
 	logicNm string = "logic4"
 )
 
-func init() {
-	job.RegisterLogic(logicNm, &logic4St{})
+type logic4St struct {
+	checkValidate int
 }
 
-type logic4St struct{}
-
 func (l logic4St) Validate() (state bool) {
-	return true
+	fmt.Println("validate", l)
+	if l.checkValidate == 2 {
+		return true
+	}
+	return false
 }
 
 func (l logic4St) Run(receiverArg job.ChanInputData) (
@@ -27,7 +29,9 @@ func (l logic4St) Run(receiverArg job.ChanInputData) (
 	err error,
 ) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(Tasks))
-	if receiverArg.Data.(Tasks).task == 20 {
+
+	failmap := map[int]bool{20: true, 30: true}
+	if failmap[receiverArg.Data.(Tasks).task] {
 		err = errors.New("FAILED SOMETHING POKOKNYA")
 		return
 	}
@@ -37,6 +41,9 @@ func (l logic4St) Run(receiverArg job.ChanInputData) (
 	return
 }
 
+// Done -
+// return true => stop job and close all workers
+// return false => will restart job start from validate -> run -> done again
 func (l logic4St) Done(out *job.OutputData) (state bool) {
 	fmt.Println(
 		"RESULT DONE", (*out).Result, "\n",
@@ -53,7 +60,13 @@ func (l logic4St) Done(out *job.OutputData) (state bool) {
 		)
 	}
 
-	return false
+	if (*out).TotalTasksFail == 0 {
+		return true
+	} else {
+		return false
+	}
+
+	return
 }
 
 type Tasks struct {
@@ -64,7 +77,7 @@ type Tasks struct {
 func RunScheduler() {
 
 	var tasks []Tasks
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 5; i++ {
 		tasks = append(tasks, Tasks{task: i, taskString: "XXXXX"})
 	}
 
@@ -75,7 +88,10 @@ func RunScheduler() {
 		capsulateTasks = append(capsulateTasks, t)
 	}
 
-	err := job.RunScheduler(100, logicNm, capsulateTasks)
+	var l logic4St
+	l.checkValidate = 2
+
+	err := job.RunScheduler(100, logicNm, capsulateTasks, &l)
 	if err != nil {
 		fmt.Println(err)
 	}
