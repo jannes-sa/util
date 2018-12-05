@@ -43,7 +43,10 @@ func RunScheduler(
 	tasks []interface{},
 	logic logiclayer,
 ) (err error) {
-	registerLogic(nmWorker, logic)
+	err = registerLogic(nmWorker, logic)
+	if err != nil {
+		return
+	}
 
 	mappingStatusTasks[nmWorker] = preparing
 	err = prepareRun(worker, nmWorker, tasks)

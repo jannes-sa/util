@@ -1,5 +1,7 @@
 package job
 
+import "errors"
+
 var (
 	logicRun = make(map[string]logiclayer)
 )
@@ -11,12 +13,13 @@ type logiclayer interface {
 }
 
 // RegisterLogic - Register Logic Inside Scheduler
-func registerLogic(nmLogic string, logic logiclayer) {
+func registerLogic(nmLogic string, logic logiclayer) (err error) {
 	if _, ok := logicRun[nmLogic]; ok {
 		msg := "failed Registered Logic " + nmLogic + "Already Registered"
-		panic(msg)
+		err = errors.New(msg)
 		return
 	}
 
 	logicRun[nmLogic] = logic
+	return
 }
