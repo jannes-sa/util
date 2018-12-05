@@ -1,6 +1,7 @@
 package job
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
@@ -8,7 +9,7 @@ import (
 var (
 	mappingTasks       = make(map[string]map[int]interface{})
 	mappingStatusTasks = make(map[string]status)
-	debug              = true
+	debug              = false
 )
 
 type status uint8
@@ -40,15 +41,12 @@ func RunScheduler(
 	worker int,
 	nmWorker string,
 	tasks []interface{},
-) {
-	var sch scheduler
-	if !logicRun[nmWorker].Validate() {
-		println("VALIDATE JOB", nmWorker, "FALSE")
+) (err error) {
+	mappingStatusTasks[nmWorker] = preparing
+	err = prepareRun(worker, nmWorker, tasks)
+	if err != nil {
 		return
 	}
-
-	mappingStatusTasks[nmWorker] = preparing
-	sch.run(worker, nmWorker, tasks)
 
 	var mapWorker int
 	go func() {
@@ -56,10 +54,30 @@ func RunScheduler(
 			mapWorker = len(mappingTasks[nmWorker])
 			print(t, nmWorker, "TOTAL TASKS LEFT", mapWorker, "STATUS", status.String(mappingStatusTasks[nmWorker]))
 			if mappingStatusTasks[nmWorker] == restart {
-				sch.run(worker, nmWorker, tasks)
+				err = prepareRun(worker, nmWorker, tasks)
+				if err != nil {
+					return
+				}
 			}
 		}
 	}()
+
+	return
+}
+
+func prepareRun(
+	worker int,
+	nmWorker string,
+	tasks []interface{},
+) (err error) {
+	var sch scheduler
+	if !logicRun[nmWorker].Validate() {
+		println("VALIDATE JOB", nmWorker, "FALSE")
+		err = errors.New("VALIDATE JOB" + nmWorker + "FALSE")
+		return
+	}
+	sch.run(worker, nmWorker, tasks)
+	return
 }
 
 func print(msg ...interface{}) {

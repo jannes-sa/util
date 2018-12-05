@@ -13,7 +13,7 @@ func (s scheduler) run(
 	}
 	mappingTasks[nmRoutine] = mapTask
 
-	input, output := make(chan interface{}), make(chan int)
+	input, output := make(chan interface{}), make(chan correlated)
 
 	mappingStatusTasks[nmRoutine] = running
 	for i := 0; i < routine; i++ {

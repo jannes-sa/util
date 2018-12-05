@@ -6,7 +6,7 @@ var (
 
 type logiclayer interface {
 	Validate() bool
-	Run(ChanInputData)
+	Run(ChanInputData) (interface{}, error)
 	Done(*OutputData) bool
 }
 

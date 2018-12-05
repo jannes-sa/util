@@ -2,11 +2,6 @@ package job
 
 import "fmt"
 
-type correlatedInput struct {
-	key int
-	val interface{}
-}
-
 func sendinput(
 	mappingTasks map[string]map[int]interface{},
 	nmRoutine string,
@@ -22,26 +17,34 @@ func sendinput(
 	}()
 
 	for k, v := range mappingTasks[nmRoutine] {
-		in := correlatedInput{
-			key: k,
-			val: v,
+		in := correlated{
+			key:   k,
+			input: v,
 		}
 		input <- in
 		delete(mappingTasks[nmRoutine], k)
 	}
 }
 
-func getOutput(countTasks int, nmRoutine string, output chan int) {
-	var workDone []int
-	for i := 0; i < countTasks; i++ {
-		o := <-output
-		workDone = append(workDone, o)
-	}
-	println(nmRoutine, "JOB DONE FROM ", countTasks, " = ", len(workDone))
-
+func getOutput(countTasks int, nmRoutine string, output chan correlated) {
 	var out OutputData
-	out.TotalTasks = len(workDone)
-	out.Result = workDone
+
+	for i := 0; i < countTasks; i++ {
+		out.TotalTasks++
+
+		o := <-output
+		out.Result = append(out.Result, o.output)
+		if o.err != nil {
+			out.Err = append(out.Err, WrapperOutputError{
+				Err:        o.err,
+				InputError: o.input,
+			})
+			out.TotalTasksFail++
+		} else {
+			out.TotalTasksDone++
+		}
+	}
+	out.TotalTasksPending = countTasks - len(out.Result)
 
 	if !logicRun[nmRoutine].Done(&out) {
 		mappingStatusTasks[nmRoutine] = restart
@@ -54,22 +57,37 @@ func getOutput(countTasks int, nmRoutine string, output chan int) {
 type ChanInputData struct {
 	Data interface{}
 }
-
 type OutputData struct {
-	TotalTasks int
-	Result     interface{}
+	TotalTasks        int                  // Total Task Has Been Received By Output
+	TotalTasksDone    int                  // Total Task Has Been Received By Output And Done According logic
+	TotalTasksFail    int                  // Total Task Has Been Received By Output And Fail According logic
+	TotalTasksPending int                  // Total Task Has Not Received By Output
+	Result            []interface{}        // All Wrapping Result
+	Err               []WrapperOutputError // All Error Contain inside of this val
+}
+
+type WrapperOutputError struct {
+	Err        error
+	InputError interface{}
+}
+
+type correlated struct {
+	key    int
+	input  interface{}
+	output interface{}
+	err    error
 }
 
 func worker(
 	input chan interface{},
-	output chan int,
+	output chan correlated,
 	nmRoutine string,
 ) {
 	for data := range input {
-		d := data.(correlatedInput)
-		logicRun[nmRoutine].Run(ChanInputData{
-			Data: d.val,
+		d := data.(correlated)
+		d.output, d.err = logicRun[nmRoutine].Run(ChanInputData{
+			Data: d.input,
 		})
-		output <- d.key
+		output <- d
 	}
 }
