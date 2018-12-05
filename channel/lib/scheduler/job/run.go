@@ -23,7 +23,7 @@ func RunScheduler(
 	go func() {
 		for t := range time.Tick(5 * time.Second) {
 			mapWorker = len(mappingTasks[nmWorker])
-			print(t, "TOTAL TASKS LEFT", mapWorker)
+			print(t, nmWorker, "TOTAL TASKS LEFT", mapWorker)
 		}
 	}()
 }
