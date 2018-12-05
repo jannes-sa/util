@@ -32,7 +32,7 @@ func (l logic4St) Done(out *job.OutputData) (state bool) {
 func RunScheduler() {
 
 	var tasks []int
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		tasks = append(tasks, i)
 	}
 

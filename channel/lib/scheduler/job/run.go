@@ -55,7 +55,9 @@ func RunScheduler(
 		for t := range time.Tick(5 * time.Second) {
 			mapWorker = len(mappingTasks[nmWorker])
 			print(t, nmWorker, "TOTAL TASKS LEFT", mapWorker, "STATUS", status.String(mappingStatusTasks[nmWorker]))
-
+			if mappingStatusTasks[nmWorker] == restart {
+				sch.run(worker, nmWorker, tasks)
+			}
 		}
 	}()
 }
