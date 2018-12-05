@@ -21,7 +21,7 @@ func (l logic4St) Validate() (state bool) {
 }
 
 func (l logic4St) Run(receiverArg job.ChanInputData) {
-	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
+	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(Tasks))
 }
 
 func (l logic4St) Done(out *job.OutputData) (state bool) {
@@ -29,11 +29,16 @@ func (l logic4St) Done(out *job.OutputData) (state bool) {
 	return true
 }
 
+type Tasks struct {
+	task       int
+	taskString string
+}
+
 func RunScheduler() {
 
-	var tasks []int
+	var tasks []Tasks
 	for i := 0; i < 100; i++ {
-		tasks = append(tasks, i)
+		tasks = append(tasks, Tasks{task: i, taskString: "XXXXX"})
 	}
 
 	var capsulateTasks []interface{}
