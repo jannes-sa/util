@@ -40,7 +40,7 @@ func (s status) String() string {
 func RunScheduler(
 	worker int,
 	nmWorker string,
-	tasks []interface{},
+	tasks map[int]interface{},
 	logic logiclayer,
 ) (err error) {
 	err = registerLogic(nmWorker, logic)
@@ -74,7 +74,7 @@ func RunScheduler(
 func prepareRun(
 	worker int,
 	nmWorker string,
-	tasks []interface{},
+	tasks map[int]interface{},
 ) (err error) {
 	var sch scheduler
 	if !logicRun[nmWorker].Validate() {

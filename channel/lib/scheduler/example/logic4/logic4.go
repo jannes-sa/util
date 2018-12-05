@@ -81,11 +81,9 @@ func RunScheduler() {
 		tasks = append(tasks, Tasks{task: i, taskString: "XXXXX"})
 	}
 
-	var capsulateTasks []interface{}
-	var t interface{}
-	for _, v := range tasks {
-		t = v
-		capsulateTasks = append(capsulateTasks, t)
+	capsulateTasks := make(map[int]interface{})
+	for k, v := range tasks {
+		capsulateTasks[k] = v
 	}
 
 	var l logic4St

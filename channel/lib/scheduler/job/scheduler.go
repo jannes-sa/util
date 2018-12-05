@@ -5,13 +5,9 @@ type scheduler struct{}
 func (s scheduler) run(
 	routine int,
 	nmRoutine string,
-	tasks []interface{},
+	tasks map[int]interface{},
 ) {
-	mapTask := make(map[int]interface{})
-	for k, v := range tasks {
-		mapTask[k] = v
-	}
-	mappingTasks[nmRoutine] = mapTask
+	mappingTasks[nmRoutine] = tasks
 
 	input, output := make(chan interface{}), make(chan correlated)
 
