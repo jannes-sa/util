@@ -1,10 +1,3 @@
-/*
-Created By : Jannes Santoso
-Scheduler Worker
-Buffered Channel
-Version 1.0
-*/
-
 package scheduler
 
 import (
