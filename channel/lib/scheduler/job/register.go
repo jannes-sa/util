@@ -5,7 +5,9 @@ var (
 )
 
 type logiclayer interface {
+	Validate() bool
 	Run(ChanInputData)
+	Done(*OutputData) bool
 }
 
 // RegisterLogic - Register Logic Inside Scheduler

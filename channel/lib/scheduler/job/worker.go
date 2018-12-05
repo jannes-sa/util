@@ -38,11 +38,26 @@ func getOutput(countTasks int, nmRoutine string, output chan int) {
 		workDone = append(workDone, o)
 	}
 	println(nmRoutine, "JOB DONE FROM ", countTasks, " = ", len(workDone))
+
+	var out OutputData
+	out.TotalTasks = len(workDone)
+	out.Result = workDone
+
+	if !logicRun[nmRoutine].Done(&out) {
+		mappingStatusTasks[nmRoutine] = restart
+		return
+	}
+	mappingStatusTasks[nmRoutine] = done
 }
 
 // ChanInputData - Channel Receiver Data
 type ChanInputData struct {
 	Data interface{}
+}
+
+type OutputData struct {
+	TotalTasks int
+	Result     interface{}
 }
 
 func worker(

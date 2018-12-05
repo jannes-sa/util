@@ -16,14 +16,23 @@ func init() {
 
 type logic4St struct{}
 
+func (l logic4St) Validate() (state bool) {
+	return true
+}
+
 func (l logic4St) Run(receiverArg job.ChanInputData) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(int))
+}
+
+func (l logic4St) Done(out *job.OutputData) (state bool) {
+	fmt.Println("RESULT FROM DONE", (*out).TotalTasks)
+	return true
 }
 
 func RunScheduler() {
 
 	var tasks []int
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 1000; i++ {
 		tasks = append(tasks, i)
 	}
 

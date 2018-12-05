@@ -15,6 +15,7 @@ func (s scheduler) run(
 
 	input, output := make(chan interface{}), make(chan int)
 
+	mappingStatusTasks[nmRoutine] = running
 	for i := 0; i < routine; i++ {
 		go worker(input, output, nmRoutine)
 	}
@@ -24,4 +25,5 @@ func (s scheduler) run(
 
 	close(input)
 	close(output)
+
 }
