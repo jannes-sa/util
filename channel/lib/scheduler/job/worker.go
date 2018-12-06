@@ -28,6 +28,7 @@ func sendinput(
 
 func getOutput(countTasks int, nmRoutine string, output chan correlated) {
 	var out OutputData
+	out.Tasks = nmRoutine
 
 	for i := 0; i < countTasks; i++ {
 		out.TotalTasks++
@@ -58,6 +59,7 @@ type ChanInputData struct {
 	Data interface{}
 }
 type OutputData struct {
+	Tasks             string               // Task Name
 	TotalTasks        int                  // Total Task Has Been Received By Output
 	TotalTasksDone    int                  // Total Task Has Been Received By Output And Done According logic
 	TotalTasksFail    int                  // Total Task Has Been Received By Output And Fail According logic

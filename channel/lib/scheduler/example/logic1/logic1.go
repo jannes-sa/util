@@ -1,7 +1,6 @@
-package logic4
+package logic1
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -9,15 +8,15 @@ import (
 )
 
 const (
-	logicNm string = "logic4"
+	logicNm string = "logic1"
 )
 
-type logic4St struct {
+type logicSt struct {
 	checkValidate int
 	tasks         []Tasks
 }
 
-func (l logic4St) Validate() (bufferingTasks map[int]interface{}, state bool) {
+func (l logicSt) Validate() (bufferingTasks map[int]interface{}, state bool) {
 	state = false
 
 	if l.checkValidate == 2 {
@@ -34,17 +33,17 @@ func (l logic4St) Validate() (bufferingTasks map[int]interface{}, state bool) {
 	return
 }
 
-func (l logic4St) Run(receiverArg job.ChanInputData) (
+func (l logicSt) Run(receiverArg job.ChanInputData) (
 	resp interface{},
 	err error,
 ) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(Tasks))
 
-	failmap := map[int]bool{20: true, 30: true}
-	if failmap[receiverArg.Data.(Tasks).task] {
-		err = errors.New("FAILED SOMETHING POKOKNYA")
-		return
-	}
+	// failmap := map[int]bool{20: true, 30: true}
+	// if failmap[receiverArg.Data.(Tasks).task] {
+	// 	err = errors.New("FAILED SOMETHING POKOKNYA")
+	// 	return
+	// }
 
 	resp = "RESPONSE " + strconv.Itoa(receiverArg.Data.(Tasks).task)
 
@@ -54,9 +53,10 @@ func (l logic4St) Run(receiverArg job.ChanInputData) (
 // Done -
 // return true => stop job and close all workers
 // return false => will restart job start from validate -> run -> done again
-func (l logic4St) Done(out *job.OutputData) (state bool) {
+func (l logicSt) Done(out *job.OutputData) (state bool) {
 	fmt.Println(
 		"RESULT DONE", (*out).Result, "\n",
+		"TASK", (*out).Tasks, "\n",
 		"TOTAL TASK", (*out).TotalTasks, "\n",
 		"TOTAL TASK DONE", (*out).TotalTasksDone, "\n",
 		"TOTAL TASK FAIL", (*out).TotalTasksFail, "\n",
@@ -91,7 +91,7 @@ func RunScheduler() {
 		tasks = append(tasks, Tasks{task: i, taskString: "XXXXX"})
 	}
 
-	var l logic4St
+	var l logicSt
 	l.checkValidate = 2
 	l.tasks = tasks
 
