@@ -45,11 +45,6 @@ func (l logicSt) Run(receiverArg job.ChanInputData) (
 	// 	return
 	// }
 
-	if receiverArg.Data.(Tasks).task == 2 {
-		fmt.Println("CALL STOP")
-		return job.Action.Stop(logicNm)
-	}
-
 	resp = "RESPONSE " + strconv.Itoa(receiverArg.Data.(Tasks).task)
 
 	return
@@ -75,13 +70,13 @@ func (l logicSt) Done(out *job.OutputData) (state bool) {
 		)
 	}
 
-	// if (*out).TotalTasksFail == 0 {
-	// 	return true
-	// } else {
-	// 	return false
-	// }
+	if (*out).TotalTasksFail == 0 {
+		return true
+	} else {
+		return false
+	}
 
-	return false
+	return
 }
 
 type Tasks struct {
@@ -92,7 +87,7 @@ type Tasks struct {
 func RunScheduler() {
 
 	var tasks []Tasks
-	for i := 1; i <= 5; i++ {
+	for i := 1; i <= 100; i++ {
 		tasks = append(tasks, Tasks{task: i, taskString: "XXXXX"})
 	}
 
@@ -100,7 +95,7 @@ func RunScheduler() {
 	l.checkValidate = 2
 	l.tasks = tasks
 
-	err := job.RunScheduler(1, logicNm, &l)
+	err := job.RunScheduler(5, logicNm, &l)
 	if err != nil {
 		fmt.Println(err)
 	}

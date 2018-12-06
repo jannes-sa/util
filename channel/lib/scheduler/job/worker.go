@@ -36,16 +36,18 @@ func getOutput(countTasks int, nmRoutine string, output chan correlated) {
 	for i := 0; i < countTasks; i++ {
 		out.TotalTasks++
 
-		o := <-output
-		out.Result = append(out.Result, o.output)
-		if o.err != nil {
-			out.Err = append(out.Err, WrapperOutputError{
-				Err:        o.err,
-				InputError: o.input,
-			})
-			out.TotalTasksFail++
-		} else {
-			out.TotalTasksDone++
+		o, ok := <-output
+		if ok {
+			out.Result = append(out.Result, o.output)
+			if o.err != nil {
+				out.Err = append(out.Err, WrapperOutputError{
+					Err:        o.err,
+					InputError: o.input,
+				})
+				out.TotalTasksFail++
+			} else {
+				out.TotalTasksDone++
+			}
 		}
 	}
 	out.TotalTasksPending = countTasks - len(out.Result)
@@ -65,7 +67,7 @@ func tearDown(
 		// recover from panic caused by writing to a closed channel
 		if r := recover(); r != nil {
 			err := fmt.Errorf("%v", r)
-			fmt.Printf("write: error writing %d on channel: %v\n", input, output, err)
+			fmt.Printf("write: error writing %d on channel: %v\n", input, err)
 			return
 		}
 	}()
@@ -111,9 +113,6 @@ func worker(
 		d.output, d.err = logicRun[nmRoutine].Run(ChanInputData{
 			Data: d.input,
 		})
-		if d.err != nil && d.err.Error() == status.String(stop) {
-			return
-		}
 		output <- d
 	}
 }

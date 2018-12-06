@@ -18,7 +18,6 @@ const (
 	preparing = iota
 	running
 	restart
-	stop
 	done
 )
 
@@ -27,7 +26,6 @@ func (s status) String() string {
 		preparing: "preparing",
 		running:   "running",
 		restart:   "restart",
-		stop:      "stop",
 		done:      "done",
 	}
 

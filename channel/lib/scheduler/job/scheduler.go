@@ -11,6 +11,10 @@ func (s scheduler) run(
 ) {
 	mappingTasks[nmRoutine] = tasks
 
+	if mappingStatusTasks[nmRoutine] == restart {
+		input, output = make(chan interface{}), make(chan correlated)
+	}
+
 	mappingStatusTasks[nmRoutine] = running
 	for i := 0; i < routine; i++ {
 		go worker(input, output, nmRoutine)
