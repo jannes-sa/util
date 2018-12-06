@@ -18,6 +18,7 @@ const (
 	preparing = iota
 	running
 	restart
+	stop
 	done
 )
 
@@ -26,6 +27,7 @@ func (s status) String() string {
 		preparing: "preparing",
 		running:   "running",
 		restart:   "restart",
+		stop:      "stop",
 		done:      "done",
 	}
 
@@ -42,10 +44,8 @@ func RunScheduler(
 	nmRoutine string,
 	logic logiclayer,
 ) (err error) {
-	var (
-		input  chan interface{}
-		output chan correlated
-	)
+
+	input, output := make(chan interface{}), make(chan correlated)
 
 	err = registerLogic(nmRoutine, logic, input, output)
 	if err != nil {
@@ -81,6 +81,7 @@ func prepareRun(
 		msg = "VALIDATE JOB" + nmRoutine + "TASKS" + strconv.Itoa(len(tasks))
 		println(msg)
 		err = errors.New(msg)
+		return
 	}
 
 	var sch scheduler

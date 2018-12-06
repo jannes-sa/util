@@ -11,8 +11,6 @@ func (s scheduler) run(
 ) {
 	mappingTasks[nmRoutine] = tasks
 
-	input, output = make(chan interface{}), make(chan correlated)
-
 	mappingStatusTasks[nmRoutine] = running
 	for i := 0; i < routine; i++ {
 		go worker(input, output, nmRoutine)
@@ -21,7 +19,7 @@ func (s scheduler) run(
 	go sendinput(mappingTasks, nmRoutine, input)
 	getOutput(len(mappingTasks[nmRoutine]), nmRoutine, output)
 
-	close(input)
-	close(output)
-
+	if mappingStatusTasks[nmRoutine] == running {
+		tearDown(input, output)
+	}
 }
