@@ -5,7 +5,7 @@ import "fmt"
 func sendinput(
 	mappingTasks map[string]map[int]interface{},
 	nmRoutine string,
-	input chan interface{},
+	input chan<- interface{},
 ) {
 	defer func() {
 		// recover from panic caused by writing to a closed channel
@@ -81,8 +81,8 @@ type correlated struct {
 }
 
 func worker(
-	input chan interface{},
-	output chan correlated,
+	input <-chan interface{},
+	output chan<- correlated,
 	nmRoutine string,
 ) {
 	for data := range input {
