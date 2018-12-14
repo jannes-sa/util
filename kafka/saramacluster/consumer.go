@@ -49,7 +49,8 @@ func Consumer() {
 		case msg, ok := <-consumer.Messages():
 			if ok {
 				fmt.Fprintf(os.Stdout, "%s/%d/%d\t%s\t%s\n", msg.Topic, msg.Partition, msg.Offset, msg.Key, msg.Value)
-				// consumer.MarkOffset(msg, "") // mark message as processed
+				consumer.MarkOffset(msg, "") // mark message as processed
+
 			}
 		case <-signals:
 			fmt.Println("STOP CONSUMER")
