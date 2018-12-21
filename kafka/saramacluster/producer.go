@@ -11,8 +11,11 @@ import (
 )
 
 func Producer(intervalPublishMsg time.Duration) {
+	config := sarama.NewConfig()
+	config.Producer.Return.Errors = true
+	config.Producer.Return.Successes = true
 
-	producer, err := sarama.NewAsyncProducer([]string{"localhost:9092"}, nil)
+	producer, err := sarama.NewAsyncProducer([]string{"localhost:9092"}, config)
 	if err != nil {
 		panic(err)
 	}
@@ -53,6 +56,8 @@ func monitoring(producer sarama.AsyncProducer) {
 		select {
 		// case producer.Input() <- &sarama.ProducerMessage{Topic: "my_topic", Key: nil, Value: sarama.StringEncoder("testing 123")}:
 		// 	enqueued++
+		case successMsg := <-producer.Successes():
+			log.Println("SUCESS MSG PRODUCER", successMsg)
 		case err := <-producer.Errors():
 			log.Println("Failed to produce message", err)
 		// errors++
