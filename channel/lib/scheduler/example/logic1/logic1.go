@@ -1,6 +1,7 @@
 package logic1
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -13,7 +14,7 @@ const (
 
 type logicSt struct {
 	checkValidate int
-	tasks         []Tasks
+	tasks         *[]Tasks
 }
 
 func (l logicSt) Validate() (bufferingTasks map[int]interface{}, state bool) {
@@ -23,7 +24,7 @@ func (l logicSt) Validate() (bufferingTasks map[int]interface{}, state bool) {
 		state = true
 
 		bufferingTasks = make(map[int]interface{})
-		for k, v := range l.tasks {
+		for k, v := range *l.tasks {
 			bufferingTasks[k] = v
 		}
 
@@ -39,11 +40,11 @@ func (l logicSt) Run(receiverArg job.ChanInputData) (
 ) {
 	fmt.Println(time.Now(), logicNm, " => ", receiverArg.Data.(Tasks))
 
-	// failmap := map[int]bool{20: true, 30: true}
-	// if failmap[receiverArg.Data.(Tasks).task] {
-	// 	err = errors.New("FAILED SOMETHING POKOKNYA")
-	// 	return
-	// }
+	failmap := map[int]bool{20: true, 30: true}
+	if failmap[receiverArg.Data.(Tasks).task] {
+		err = errors.New("FAILED SOMETHING POKOKNYA")
+		return
+	}
 
 	resp = "RESPONSE " + strconv.Itoa(receiverArg.Data.(Tasks).task)
 
@@ -63,11 +64,13 @@ func (l logicSt) Done(out *job.OutputData) (state bool) {
 		"TOTAL TASK PENDING", (*out).TotalTasksPending, "\n",
 	)
 
+	*l.tasks = []Tasks{}
 	for _, v := range (*out).Err {
 		fmt.Println(
 			"ERROR =>", v.Err, "\n",
 			"INPUT TASK =>", v.InputError, "\n",
 		)
+		*l.tasks = append(*l.tasks, v.InputError.(Tasks))
 	}
 
 	if (*out).TotalTasksFail == 0 {
@@ -93,7 +96,7 @@ func RunScheduler() {
 
 	var l logicSt
 	l.checkValidate = 2
-	l.tasks = tasks
+	l.tasks = &tasks
 
 	err := job.RunScheduler(5, logicNm, &l)
 	if err != nil {
